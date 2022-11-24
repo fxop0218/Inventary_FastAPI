@@ -4,6 +4,7 @@ from fastapi.background import BackgroundTasks
 from redis_om import get_redis_connection, HashModel
 from dotenv import load_dotenv
 from starlette.requests import Request
+import time
 import requests
 import os
 
@@ -33,7 +34,7 @@ class Order(HashModel):
     price: float
     fee: float
     total: float
-    quantiry: int
+    quantity: int
     status: str # Completed // pending // error // refunded
 
     class Meta:
@@ -43,10 +44,18 @@ class Order(HashModel):
 def test():
     return {"message": "test"}
 
+
+@app.get("/orders/{pk}")
+def get_order(pk: str):
+    order = Order.get(pk)
+    # redis.xadd("refund_order", order.dict(), "*")
+    return order
+
+
 @app.post("/orders")
-async def create(request: Request):
+async def create(request: Request, background_t: BackgroundTasks):
     body = await request.json()
-    reqst = requests.get(f"http://localhost:8000/products/{body['id']}")
+    reqst = requests.get(f"http://localhost:8000/products/%s" % body["id"])
     product = reqst.json()
 
     order = Order(
@@ -58,10 +67,15 @@ async def create(request: Request):
         status = "pending"
     )
     order.save()
+    background_t.add_task(order_completed, order) # Execute this function at the background
+    #order_completed(order)
     
     return order
 
 def order_completed(odr: Order):
+    time.sleep(20) # After this, the status change to completed
     odr.status = "completed"
-    odr.save() 
+    odr.save()
+    # send event 
+    redis.xadd("order_completed", odr.dict(), "*") # * is a id, if you put * autogenerates a id
 
