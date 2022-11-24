@@ -1,6 +1,16 @@
 import { Wrapper } from "./Wrapper"
+import { useState, useEffect } from "react"
 
 export const Products = () => {
+    const [products, setProducts] = useState([])
+
+    useEffect(() => {
+        ;(async () => {
+            const response = await fetch("http://localhost:8000/products")
+            const contnt = await response.json()
+            setProducts(contnt)
+        })()
+    }, [])
     return (
         <Wrapper>
             <div class="table-responsive">
@@ -8,20 +18,28 @@ export const Products = () => {
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Header</th>
-                            <th scope="col">Header</th>
-                            <th scope="col">Header</th>
-                            <th scope="col">Header</th>
+                            <th scope="col">Product</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1,001</td>
-                            <td>random</td>
-                            <td>data</td>
-                            <td>placeholder</td>
-                            <td>text</td>
-                        </tr>
+                        {products.map((product) => {
+                            return (
+                                <tr key={product.id}>
+                                    <td>{product.id}</td>
+                                    <td>{product.name}</td>
+                                    <td>{product.quantity}</td>
+                                    <td>{product.price}</td>
+                                    <td>
+                                        <a href="#" className="btn btn-sm btn-outlline-secondary">
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             </div>
