@@ -12,6 +12,15 @@ export const Products = () => {
             setProducts(contnt)
         })()
     }, [])
+
+    const delt = async (product_id) => {
+        if (window.confirm("Click accept to delete the product")) {
+            await fetch(`http://localhost:8000/product/${product_id}`, {
+                method: "DELETE",
+            })
+            setProducts(products.filter((prod) => prod.id !== product_id))
+        }
+    }
     return (
         <Wrapper>
             <div>
@@ -39,7 +48,11 @@ export const Products = () => {
                                     <td>{product.quantity}</td>
                                     <td>{product.price}</td>
                                     <td>
-                                        <a href="#" className="btn btn-sm btn-outlline-secondary">
+                                        <a
+                                            href="#"
+                                            className="btn btn-sm btn-outlline-secondary"
+                                            onClick={(e) => delt(product.id)}
+                                        >
                                             Delete
                                         </a>
                                     </td>
