@@ -1,5 +1,6 @@
 import { Wrapper } from "./Wrapper"
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 
 export const Products = () => {
     const [products, setProducts] = useState([])
@@ -13,6 +14,11 @@ export const Products = () => {
     }, [])
     return (
         <Wrapper>
+            <div>
+                <Link to={"/create"} className="pt-3 pb.2 mb-3 border-bottom">
+                    Add
+                </Link>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
